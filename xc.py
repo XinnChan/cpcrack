@@ -68,7 +68,7 @@ def cw(url):
         print(f"{FY}[cPanel/WHM] - {FR}[Error!] - {FW}{uwp} - {FC}{str(e)}")
 
 def c(url, username, password):
-    ports = [2082, 2083]
+    ports = [2083]
     ep = "/login/?login_only=1"
 
     for port in ports:
